@@ -14,5 +14,6 @@ python main2.py
 
 To compile the report:
 ```sh
-typst compile report/report.typ
+cd docs
+typst compile rapport.typ
 ```
