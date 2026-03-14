@@ -2,57 +2,54 @@ from __future__ import annotations
 
 from tilsam.alphabets import get_alphabet
 from tilsam.analysis import bigram, scoring, tables
+from tilsam.ciphers import substitution as sub_cipher
 from tilsam.crack import substitution as sub_crack
 
 
-CIPHERTEXT_EN = (
-    "gsv jfrxp yildm ulc qfnkh levi gsv ozab wlt zmw gsrh rh z olmtvi hvmgvmxv gl trev "
-    "uivjfvmxb zmzobhrh vmlfts wzgz gl dlip drgs kilkviob rm gsrh vckvirnvmg"
-)
+def reversed_key(alpha) -> str:
+    return "".join(alpha.index_to_char(i) for i in range(alpha.size() - 1, -1, -1))
 
 
-def _bigram_score(text: str, lang: str) -> float:
+def bigram_score(text: str, lang: str) -> float:
     alpha = get_alphabet(lang)
     obs = bigram.relative(text, alpha)
-
-    if lang == "en":
-        exp = tables.english_bigram_freq()
-    elif lang == "ar":
-        exp = tables.arabic_bigram_freq()
+    if lang == "fr":
+        exp = tables.french_bigram_freq()
     else:
-        raise ValueError(f"No bigram table for lang={lang!r}")
-
+        raise ValueError(lang)
     return scoring.chi_squared_bigram(obs, exp)
 
 
-def test_substitution_en(iterations: int = 300) -> None:
-    alpha = get_alphabet("en")
+def main() -> None:
+    alpha = get_alphabet("fr")
+    key = reversed_key(alpha)
 
-    baseline_score = _bigram_score(CIPHERTEXT_EN, "en")
+    plain = (
+        "bonjour a tous ceci est une phrase assez longue pour tester le cassage "
+        "par analyse de frequences et de bigrammes dans un texte francais "
+        "afin d obtenir des resultats plus stables"
+    )
 
+    ciphertext = sub_cipher.encrypt(plain, key, alpha)
+
+    baseline = bigram_score(ciphertext, "fr")
     cand = sub_crack.crack(
-        CIPHERTEXT_EN,
+        ciphertext,
         alpha,
-        tables.english_letter_freq(),
-        tables.english_bigram_freq(),
-        iterations=iterations,
+        tables.french_letter_freq(),
+        tables.french_bigram_freq(),
+        iterations=500,
     )[0]
+    best = bigram_score(cand.plaintext, "fr")
 
-    best_score = _bigram_score(cand.plaintext, "en")
-
-    print(f"\n[en] iterations={iterations}")
-    print("cipher   :", CIPHERTEXT_EN[:90] + ("..." if len(CIPHERTEXT_EN) > 90 else ""))
+    print("\n[fr] substitution crack")
+    print("cipher   :", ciphertext[:90] + ("..." if len(ciphertext) > 90 else ""))
     print("best     :", cand.plaintext[:90] + ("..." if len(cand.plaintext) > 90 else ""))
-    print("score (baseline):", baseline_score)
-    print("score (best)    :", best_score)
+    print("score (baseline):", baseline)
+    print("score (best)    :", best)
     print("key:", cand.key_description[:60] + "...")
 
-    # "Working" for this heuristic means improvement vs baseline, not perfect recovery.
-    assert best_score < baseline_score, "substitution cracker did not improve over baseline"
-
-
-def main() -> None:
-    test_substitution_en(iterations=300)
+    assert best < baseline, "did not improve over baseline"
     print("\nOK")
 
 

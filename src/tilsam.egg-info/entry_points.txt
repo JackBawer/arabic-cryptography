@@ -1,0 +1,2 @@
+[console_scripts]
+tilsam = tilsam.main:main

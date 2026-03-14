@@ -19,8 +19,8 @@ def _egcd(a: int, b: int) -> tuple[int, int, int]:
 
 
 def _modinv(a: int, n: int) -> int:
-    # Modular inverse of a modulo n.
-    # Raises ValueError if inverse does not exist.
+    # Modular inverse of a modulo n
+    # Raises ValueError if inverse does not exist
     a = a % n
     g, x, _ = _egcd(a, n)
     if g != 1:

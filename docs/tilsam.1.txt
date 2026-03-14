@@ -1,0 +1,220 @@
+TILSAM(1)
+
+NAME
+    tilsam - Classical cipher toolkit
+
+SYNOPSIS
+    tilsam [OPTIONS] COMMAND [ARGS]...
+
+DESCRIPTION
+    Classical cipher toolkit (encrypt, decrypt, crack, analyze).
+
+GLOBAL HELP
+
+                                                                                      
+ Usage: tilsam [OPTIONS] COMMAND [ARGS]...                                            
+                                                                                      
+ Classical cipher toolkit                                                             
+                                                                                      
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.            │
+│ --show-completion             Show completion for the current shell, to copy it or │
+│                               customize the installation.                          │
+│ --help                        Show this message and exit.                          │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ─────────────────────────────────────────────────────────────────────────╮
+│ analyze                                                                            │
+│ encrypt  Encrypt text with a classical cipher                                      │
+│ decrypt  Decrypt text with a classical cipher                                      │
+│ crack    Crack a ciphertext using frequency analysis                               │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: encrypt
+
+                                                                                      
+ Usage: tilsam encrypt [OPTIONS] COMMAND [ARGS]...                                    
+                                                                                      
+ Encrypt text with a classical cipher                                                 
+                                                                                      
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                        │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ─────────────────────────────────────────────────────────────────────────╮
+│ caesar                                                                             │
+│ affine                                                                             │
+│ substitution                                                                       │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: encrypt caesar
+
+                                                                                      
+ Usage: tilsam encrypt caesar [OPTIONS] [TEXT]                                        
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]  Input text (or use --input for file)                           │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --shift   -s      INTEGER  Shift value [required]                               │
+│    --input   -i      TEXT     Input file                                           │
+│    --output  -o      TEXT     Output file                                          │
+│    --lang    -l      TEXT     Language                                             │
+│    --help                     Show this message and exit.                          │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: encrypt affine
+
+                                                                                      
+ Usage: tilsam encrypt affine [OPTIONS] [TEXT]                                        
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --key-a   -a      INTEGER  Key a (must be coprime with alphabet size)           │
+│                               [required]                                           │
+│ *  --key-b   -b      INTEGER  Key b [required]                                     │
+│    --input   -i      TEXT                                                          │
+│    --output  -o      TEXT                                                          │
+│    --lang    -l      TEXT                                                          │
+│    --help                     Show this message and exit.                          │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: encrypt substitution
+
+                                                                                      
+ Usage: tilsam encrypt substitution [OPTIONS] [TEXT]                                  
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --key     -k      TEXT  Substitution key (permutation of alphabet) [required]   │
+│    --input   -i      TEXT                                                          │
+│    --output  -o      TEXT                                                          │
+│    --lang    -l      TEXT                                                          │
+│    --help                  Show this message and exit.                             │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: decrypt caesar
+
+                                                                                      
+ Usage: tilsam decrypt caesar [OPTIONS] [TEXT]                                        
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --shift   -s      INTEGER  [required]                                           │
+│    --input   -i      TEXT                                                          │
+│    --output  -o      TEXT                                                          │
+│    --lang    -l      TEXT                                                          │
+│    --help                     Show this message and exit.                          │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: decrypt affine
+
+                                                                                      
+ Usage: tilsam decrypt affine [OPTIONS] [TEXT]                                        
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --key-a   -a      INTEGER  [required]                                           │
+│ *  --key-b   -b      INTEGER  [required]                                           │
+│    --input   -i      TEXT                                                          │
+│    --output  -o      TEXT                                                          │
+│    --lang    -l      TEXT                                                          │
+│    --help                     Show this message and exit.                          │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: decrypt substitution
+
+                                                                                      
+ Usage: tilsam decrypt substitution [OPTIONS] [TEXT]                                  
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ *  --key     -k      TEXT  [required]                                              │
+│    --input   -i      TEXT                                                          │
+│    --output  -o      TEXT                                                          │
+│    --lang    -l      TEXT                                                          │
+│    --help                  Show this message and exit.                             │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: crack caesar
+
+                                                                                      
+ Usage: tilsam crack caesar [OPTIONS] [TEXT]                                          
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --input   -i      TEXT                                                             │
+│ --output  -o      TEXT                                                             │
+│ --lang    -l      TEXT                                                             │
+│ --top     -t      INTEGER  Number of top candidates to show [default: 5]           │
+│ --help                     Show this message and exit.                             │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: crack affine
+
+                                                                                      
+ Usage: tilsam crack affine [OPTIONS] [TEXT]                                          
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --input   -i      TEXT                                                             │
+│ --output  -o      TEXT                                                             │
+│ --lang    -l      TEXT                                                             │
+│ --top     -t      INTEGER  [default: 5]                                            │
+│ --help                     Show this message and exit.                             │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: crack substitution
+
+                                                                                      
+ Usage: tilsam crack substitution [OPTIONS] [TEXT]                                    
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --input       -i      TEXT                                                         │
+│ --output      -o      TEXT                                                         │
+│ --lang        -l      TEXT                                                         │
+│ --iterations          INTEGER  Hill-climbing iterations [default: 100]             │
+│ --help                         Show this message and exit.                         │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+
+COMMAND HELP: analyze
+
+                                                                                      
+ Usage: tilsam analyze [OPTIONS] [TEXT]                                               
+                                                                                      
+╭─ Arguments ────────────────────────────────────────────────────────────────────────╮
+│   text      [TEXT]  Input text (or use --input for file)                           │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ──────────────────────────────────────────────────────────────────────────╮
+│ --input    -i      TEXT  Input file                                                │
+│ --lang     -l      TEXT  Language                                                  │
+│ --bigrams                Show bigram frequencies too                               │
+│ --help                   Show this message and exit.                               │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+

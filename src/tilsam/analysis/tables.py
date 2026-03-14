@@ -94,3 +94,73 @@ def arabic_bigram_freq() -> dict[tuple[str, str], float]:
         ("\u062F", "\u0627"): 0.0058,
         ("\u0633", "\u062A"): 0.0055,
     }
+
+
+def french_letter_freq() -> dict[str, float]:
+    # Approximate French letter frequencies (a–z), accents assumed normalized.
+    # Source-style: common French frequency tables (values vary slightly by corpus).
+    return {
+        "a": 0.07636,
+        "b": 0.00901,
+        "c": 0.03260,
+        "d": 0.03669,
+        "e": 0.14715,
+        "f": 0.01066,
+        "g": 0.00866,
+        "h": 0.00737,
+        "i": 0.07529,
+        "j": 0.00613,
+        "k": 0.00049,
+        "l": 0.05456,
+        "m": 0.02968,
+        "n": 0.07095,
+        "o": 0.05796,
+        "p": 0.02521,
+        "q": 0.01362,
+        "r": 0.06693,
+        "s": 0.07948,
+        "t": 0.07244,
+        "u": 0.06311,
+        "v": 0.01838,
+        "w": 0.00074,
+        "x": 0.00427,
+        "y": 0.00128,
+        "z": 0.00326,
+    }
+
+
+def french_bigram_freq() -> dict[tuple[str, str], float]:
+    # Approximate common French bigram frequencies (top set).
+    # These are relative weights; they do not need to cover all bigrams.
+    return {
+        ("e", "s"): 0.033,
+        ("e", "n"): 0.030,
+        ("d", "e"): 0.028,
+        ("l", "e"): 0.027,
+        ("r", "e"): 0.026,
+        ("o", "n"): 0.025,
+        ("n", "t"): 0.024,
+        ("e", "r"): 0.023,
+        ("t", "i"): 0.022,
+        ("n", "e"): 0.021,
+        ("q", "u"): 0.020,
+        ("u", "e"): 0.019,
+        ("a", "n"): 0.018,
+        ("t", "e"): 0.018,
+        ("s", "e"): 0.017,
+        ("i", "o"): 0.017,
+        ("a", "i"): 0.016,
+        ("e", "t"): 0.016,
+        ("i", "n"): 0.016,
+        ("u", "r"): 0.015,
+        ("p", "a"): 0.015,
+        ("c", "o"): 0.015,
+        ("o", "u"): 0.015,
+        ("l", "a"): 0.014,
+        ("m", "e"): 0.014,
+        ("s", "t"): 0.014,
+        ("i", "s"): 0.013,
+        ("t", "o"): 0.013,
+        ("a", "r"): 0.013,
+        ("e", "l"): 0.013,
+    }
