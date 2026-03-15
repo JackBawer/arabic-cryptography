@@ -136,14 +136,11 @@ tilsam encrypt caesar --lang ar --shift 5 "مر��با بالعالم"
 
 ### Dependencies
 
-The GUI requires a Qt binding (project-defined). Install the GUI dependencies in your virtual environment:
+Install the GUI dependencies in your virtual environment using the provided dependencies file:
 
 ```sh
-pip install -e ".[gui]"
+pip install -r dependencies.txt
 ```
-
-> If your project does not expose an extra named `gui`, install the required Qt dependency directly
-> (for example, `PySide6` or `PyQt6`) according to your `pyproject.toml`.
 
 ### Run the GUI
 
