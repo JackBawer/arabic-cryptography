@@ -209,6 +209,7 @@ def crack_substitution_cmd(
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
     iterations: int = typer.Option(100, "--iterations", help="Hill-climbing iterations"),
+    top: int = typer.Option(5, "--top", "-t", help="Number of top candidates to show"),
 ):
     content = read_input(text, input)
     l = resolve_lang(lang, content)
@@ -217,13 +218,12 @@ def crack_substitution_cmd(
     candidates = crack_substitution.crack(
         content, alpha, letter_freq, bigram_freq, iterations=iterations
     )
-    # faithful to Rust: always show 1 candidate for substitution
-    write_output(format_candidates(candidates, 1), output)
-
+    write_output(format_candidates(candidates, top), output)
 
 # -------
 # Analyze
 # -------
+
 
 @app.command("analyze")
 def analyze_cmd(
