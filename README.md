@@ -31,7 +31,7 @@ It is designed to be simple to run from the command line and easy to reuse as a 
 ### Editable install (development)
 
 ```sh
-git clone <YOUR_REPO_URL_HERE>
+git clone <https://github.com/JackBawer/tilsam.git>
 cd tilsam
 
 python -m venv .venv
@@ -125,8 +125,44 @@ tilsam analyze --lang en --bigrams "some text to analyze"
 tilsam encrypt caesar --lang fr --shift 3 "bonjour le monde"
 
 # Arabic text (best without diacritics/harakat unless your alphabet supports them)
-tilsam encrypt caesar --lang ar --shift 5 "مرحبا بالعالم"
+tilsam encrypt caesar --lang ar --shift 5 "مر��با بالعالم"
 ```
+
+---
+
+## Usage (GUI)
+
+**tilsam** also ships with a GUI application.
+
+### Dependencies
+
+The GUI requires a Qt binding (project-defined). Install the GUI dependencies in your virtual environment:
+
+```sh
+pip install -e ".[gui]"
+```
+
+> If your project does not expose an extra named `gui`, install the required Qt dependency directly
+> (for example, `PySide6` or `PyQt6`) according to your `pyproject.toml`.
+
+### Run the GUI
+
+After installation:
+
+```sh
+tilsam-gui
+```
+
+If the GUI entry point is not available in your environment, you can run it as a module instead:
+
+```sh
+python -m tilsam.gui
+```
+
+### Notes
+
+- Cracking operations are CPU-bound and may take noticeable time for long ciphertexts and/or large iteration counts.
+- If you want more control over parameters and output formatting, prefer the CLI cracking commands.
 
 ---
 

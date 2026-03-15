@@ -77,12 +77,13 @@ def encrypt_caesar(
     input: str | None = typer.Option(None, "--input", "-i", help="Input file"),
     output: str | None = typer.Option(None, "--output", "-o", help="Output file"),
     lang: str | None = typer.Option(None, "--lang", "-l", help="Language", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_caesar.encrypt(content, shift, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 @encrypt_app.command("affine")
@@ -93,12 +94,13 @@ def encrypt_affine(
     input: str | None = typer.Option(None, "--input", "-i"),
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_affine.encrypt(content, key_a, key_b, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 @encrypt_app.command("substitution")
@@ -108,12 +110,13 @@ def encrypt_substitution(
     input: str | None = typer.Option(None, "--input", "-i"),
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_substitution.encrypt(content, key, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 # ----------------
@@ -127,12 +130,13 @@ def decrypt_caesar(
     input: str | None = typer.Option(None, "--input", "-i"),
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_caesar.decrypt(content, shift, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 @decrypt_app.command("affine")
@@ -143,12 +147,13 @@ def decrypt_affine(
     input: str | None = typer.Option(None, "--input", "-i"),
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_affine.decrypt(content, key_a, key_b, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 @decrypt_app.command("substitution")
@@ -158,12 +163,13 @@ def decrypt_substitution(
     input: str | None = typer.Option(None, "--input", "-i"),
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     result = cipher_substitution.decrypt(content, key, alpha)
-    write_output(result, output)
+    write_output(result, output, encoding=encoding)
 
 
 # -------------
@@ -177,13 +183,14 @@ def crack_caesar_cmd(
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
     top: int = typer.Option(5, "--top", "-t", help="Number of top candidates to show"),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     letter_freq, _ = get_freq_tables(l)
     candidates = crack_caesar.crack(content, alpha, letter_freq)
-    write_output(format_candidates(candidates, top), output)
+    write_output(format_candidates(candidates, top), output, encoding=encoding)
 
 
 @crack_app.command("affine")
@@ -193,13 +200,14 @@ def crack_affine_cmd(
     output: str | None = typer.Option(None, "--output", "-o"),
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
     top: int = typer.Option(5, "--top", "-t"),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     letter_freq, _ = get_freq_tables(l)
     candidates = crack_affine.crack(content, alpha, letter_freq)
-    write_output(format_candidates(candidates, top), output)
+    write_output(format_candidates(candidates, top), output, encoding=encoding)
 
 
 @crack_app.command("substitution")
@@ -210,29 +218,32 @@ def crack_substitution_cmd(
     lang: str | None = typer.Option(None, "--lang", "-l", case_sensitive=False),
     iterations: int = typer.Option(100, "--iterations", help="Hill-climbing iterations"),
     top: int = typer.Option(5, "--top", "-t", help="Number of top candidates to show"),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
     letter_freq, bigram_freq = get_freq_tables(l)
     candidates = crack_substitution.crack(
         content, alpha, letter_freq, bigram_freq, iterations=iterations
     )
-    write_output(format_candidates(candidates, top), output)
+    write_output(format_candidates(candidates, top), output, encoding=encoding)
+
 
 # -------
 # Analyze
 # -------
 
-
 @app.command("analyze")
 def analyze_cmd(
     text: str | None = typer.Argument(None, help="Input text (or use --input for file)"),
     input: str | None = typer.Option(None, "--input", "-i", help="Input file"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Output file"),
     lang: str | None = typer.Option(None, "--lang", "-l", help="Language", case_sensitive=False),
     bigrams_: bool = typer.Option(False, "--bigrams", help="Show bigram frequencies too"),
+    encoding: str = typer.Option("utf-8", "--encoding", help="Text encoding for --input/--output files"),
 ):
-    content = read_input(text, input)
+    content = read_input(text, input, encoding=encoding)
     l = resolve_lang(lang, content)
     alpha = get_alphabet(l.value)
 
@@ -252,7 +263,7 @@ def analyze_cmd(
         for (a, b), f in bg[:20]:
             out_lines.append(f"  {a}{b} {f * 100:5.2f}%")
 
-    write_output("\n".join(out_lines), None)
+    write_output("\n".join(out_lines), output, encoding=encoding)
 
 
 def run() -> None:

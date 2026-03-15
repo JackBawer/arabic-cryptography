@@ -12,6 +12,7 @@ dependencies = [
 
 [project.scripts]
 tilsam = "tilsam.main:main"
+tilsam-gui = "tilsam.gui.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
