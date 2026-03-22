@@ -297,9 +297,31 @@ const STYLE = `
   }
   .tls-status-sep { color: #2e3138; }
   .tls-copy-flash { color: #4ea8f5 !important; }
+  .tls-error {
+    color: #f87171;
+    background: #2a1a1a;
+    border: 1px solid #7f1d1d;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+  }
 `;
 
 const ALPHABET = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+
+const API_BASE = process.env.REACT_APP_API_BASE || '';
+
+async function apiPost(path, body) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+}
 
 export default function Tilsam() {
   const CIPHERS = ['Caesar', 'Affine', 'Substitution'];
@@ -315,7 +337,10 @@ export default function Tilsam() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [freqOpen, setFreqOpen] = useState(false);
+  const [freqData, setFreqData] = useState([]);
   const [copyFlash, setCopyFlash] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleCopy = () => {
     if (output) {
@@ -331,7 +356,46 @@ export default function Tilsam() {
   const handleCipherChange = (c) => {
     setCipher(c);
     setOutput('');
+    setError('');
   };
+
+  const handleExecute = async () => {
+    if (!input.trim()) {
+      setError('Please enter some input text.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const body = { cipher, language, mode, text: input, shift, affineA, affineB, subKey };
+      const data = await apiPost('/api/execute', body);
+      setOutput(data.result);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!input.trim()) {
+      setError('Please enter some input text to analyze.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const data = await apiPost('/api/analyze', { text: input, language, showBigrams: false });
+      setFreqData(data.frequencies || []);
+      setFreqOpen(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const maxRel = freqData.length > 0 ? Math.max(...freqData.map(d => d.rel)) : 1;
 
   return (
     <>
@@ -345,7 +409,7 @@ export default function Tilsam() {
 
         <main className="tls-main">
 
-          {}
+          {/* Configuration */}
           <div className="tls-panel">
             <div className="tls-panel-title">Configuration</div>
 
@@ -404,7 +468,7 @@ export default function Tilsam() {
               {['Encrypt', 'Decrypt', 'Crack'].map(m => (
                 <button key={m}
                   className={`tls-mode-btn${mode === m ? ' active' : ''}`}
-                  onClick={() => { setMode(m); setOutput(''); }}>
+                  onClick={() => { setMode(m); setOutput(''); setError(''); }}>
                   {m}
                 </button>
               ))}
@@ -416,18 +480,25 @@ export default function Tilsam() {
             <div className="tls-io-header">
               <div className="tls-panel-title" style={{ margin: 0 }}>Input</div>
               <div className="tls-io-actions">
-                <button className="tls-action-btn" onClick={() => setInput('')}>Clear</button>
-                <button className="tls-action-btn" onClick={() => { setInput(output); setOutput(''); }}>Swap</button>
+                <button className="tls-action-btn" onClick={() => { setInput(''); setError(''); }}>Clear</button>
+                <button className="tls-action-btn" onClick={() => { setInput(output); setOutput(''); setError(''); }}>Swap</button>
               </div>
             </div>
             <textarea className="tls-textarea" value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => { setInput(e.target.value); setError(''); }}
               placeholder="Enter text here…" rows={6} />
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="tls-error">{error}</div>
+          )}
+
           {/* Execute */}
           <div className="tls-execute-wrap">
-            <button className="tls-execute-btn">Execute</button>
+            <button className="tls-execute-btn" onClick={handleExecute} disabled={loading}>
+              {loading ? 'Working…' : 'Execute'}
+            </button>
           </div>
 
           {/* Output */}
@@ -444,6 +515,7 @@ export default function Tilsam() {
             <textarea className="tls-textarea" value={output} readOnly
               placeholder="Output will appear here…" rows={6} />
           </div>
+
           {/* Frequency Analysis */}
           <div className="tls-panel">
             <div className="tls-freq-bar">
@@ -452,17 +524,25 @@ export default function Tilsam() {
                   onChange={e => setFreqOpen(e.target.checked)} />
                 <span>Frequency Analysis</span>
               </label>
-              <button className="tls-analyze-btn">Analyze</button>
+              <button className="tls-analyze-btn" onClick={handleAnalyze} disabled={loading}>Analyze</button>
             </div>
 
             {freqOpen && (
               <div className="tls-freq-chart">
-                {ALPHABET.map(l => (
-                  <div key={l} className="tls-bar-wrap">
-                    <div className="tls-bar" style={{ height: '2px' }} />
-                    <span className="tls-bar-lbl">{l}</span>
-                  </div>
-                ))}
+                {freqData.length > 0
+                  ? freqData.map(({ letter, rel }) => (
+                      <div key={letter} className="tls-bar-wrap">
+                        <div className="tls-bar" style={{ height: `${Math.max(2, Math.round((rel / maxRel) * 70))}px` }} />
+                        <span className="tls-bar-lbl">{letter}</span>
+                      </div>
+                    ))
+                  : ALPHABET.map(l => (
+                      <div key={l} className="tls-bar-wrap">
+                        <div className="tls-bar" style={{ height: '2px' }} />
+                        <span className="tls-bar-lbl">{l}</span>
+                      </div>
+                    ))
+                }
               </div>
             )}
           </div>

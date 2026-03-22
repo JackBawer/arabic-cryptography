@@ -1,3 +1,0 @@
-this is a small english text sample.
-it has enough letters to test frequency.
-the quick brown fox jumps over the lazy dog.

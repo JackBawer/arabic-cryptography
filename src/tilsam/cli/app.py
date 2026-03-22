@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import webbrowser
 from dataclasses import dataclass
 
 import typer
@@ -264,6 +265,29 @@ def analyze_cmd(
             out_lines.append(f"  {a}{b} {f * 100:5.2f}%")
 
     write_output("\n".join(out_lines), output, encoding=encoding)
+
+
+@app.command("gui")
+def gui_cmd(
+    host: str = typer.Option("127.0.0.1", "--host", help="Host to bind the web server to"),
+    port: int = typer.Option(5173, "--port", "-p", help="Port to listen on"),
+    no_browser: bool = typer.Option(False, "--no-browser", help="Do not open a browser automatically"),
+):
+    """Launch the React web GUI in your browser."""
+    try:
+        from tilsam.web import create_app as _create_app
+    except ImportError as exc:
+        typer.echo(f"Web GUI dependencies missing: {exc}", err=True)
+        typer.echo("Install them with: pip install tilsam[web]", err=True)
+        raise typer.Exit(1)
+
+    flask_app = _create_app()
+    url = f"http://{host}:{port}"
+    typer.echo(f"Starting tilsam web GUI at {url}")
+    typer.echo("Press Ctrl+C to stop.")
+    if not no_browser:
+        webbrowser.open(url)
+    flask_app.run(host=host, port=port)
 
 
 def run() -> None:

@@ -1,3 +1,0 @@
-c'est un petit texte en francais.
-il contient des lettres avec des accents: eeacu.
-le vif renard brun saute par-dessus le chien paresseux.

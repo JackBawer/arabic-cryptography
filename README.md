@@ -132,28 +132,85 @@ tilsam encrypt caesar --lang ar --shift 5 "مر��با بالعالم"
 
 ## Usage (GUI)
 
-**tilsam** also ships with a GUI application.
+**tilsam** ships with two GUI flavours: a **web-based React GUI** (recommended) and a legacy Qt desktop GUI.
 
-### Dependencies
+### Web GUI (React)
 
-The GUI requires a Qt binding (project-defined). Install the GUI dependencies in your virtual environment:
+The web GUI runs in your browser and is launched directly from the CLI.
+
+#### 1. Install web dependencies
 
 ```sh
-pip install -e ".[gui]"
+pip install "tilsam[web]"
+```
+
+#### 2. Build the React front-end
+
+```sh
+cd gui
+npm install
+npm run build
+cd ..
+```
+
+#### 3. Launch the GUI via the CLI
+
+```sh
+tilsam gui
+```
+
+This starts a local web server on <http://127.0.0.1:5173> and opens your browser automatically.
+
+Available options:
+
+```
+tilsam gui --help
+
+  --host        Host to bind to      [default: 127.0.0.1]
+  --port  -p    Port to listen on    [default: 5173]
+  --no-browser  Skip auto-open browser
+```
+
+#### Development mode (hot-reload)
+
+Start Flask first, then start the React dev server in a second terminal.
+The dev server automatically proxies `/api/*` requests to Flask:
+
+```sh
+# Terminal 1 – Python backend
+tilsam gui --no-browser
+
+# Terminal 2 – React dev server
+cd gui
+npm start
+```
+
+Then open <http://localhost:3000>.
+
+---
+
+### Desktop GUI (Qt)
+
+The legacy PySide6 desktop application is still available.
+
+#### Dependencies
+
+Install the GUI dependencies in your virtual environment:
+
+```sh
+pip install -r dependencies.txt
 ```
 
 > If your project does not expose an extra named `gui`, install the required Qt dependency directly
 > (for example, `PySide6` or `PyQt6`) according to your `pyproject.toml`.
 
-### Run the GUI
-
-After installation:
+#### Run the desktop GUI
 
 ```sh
 tilsam-gui
 ```
 
-If the GUI entry point is not available in your environment, you can run it as a module instead:
+Or as a module:
 
 ```sh
 python -m tilsam.gui
@@ -255,6 +312,20 @@ tilsam/
             ├── caesar.py
             ├── affine.py
             └── substitution.py
+```
+
+The repository also contains a React front-end that is served by the web module:
+
+```text
+tilsam/
+├── gui/                        # React web GUI (front-end)
+│   ├── package.json
+│   └── src/
+│       └── App.js              # main React component (calls /api/*)
+└── src/
+    └── tilsam/
+        └── web/
+            └── server.py       # Flask web server + REST API
 ```
 
 ---
