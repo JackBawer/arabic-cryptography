@@ -132,37 +132,46 @@ tilsam encrypt caesar --lang ar --shift 5 "مر��با بالعالم"
 
 ## Usage (GUI)
 
-**tilsam** also ships with a GUI application.
+The project includes a React GUI in the `gui` folder. The frontend talks to the Python CLI through a local Node bridge.
 
-### Dependencies
+### Prerequisites
 
-The GUI requires a Qt binding (project-defined). Install the GUI dependencies in your virtual environment:
-
-```sh
-pip install -e ".[gui]"
-```
-
-> If your project does not expose an extra named `gui`, install the required Qt dependency directly
-> (for example, `PySide6` or `PyQt6`) according to your `pyproject.toml`.
-
-### Run the GUI
-
-After installation:
+- Python 3.10+
+- Node.js + npm
+- Python package installed from repo root:
 
 ```sh
-tilsam-gui
+pip install -e .
 ```
 
-If the GUI entry point is not available in your environment, you can run it as a module instead:
+### Run the GUI (development)
+
+Open two terminals and run these commands from the `gui` folder.
+
+Terminal 1 (bridge):
 
 ```sh
-python -m tilsam.gui
+npm run bridge
 ```
+
+Terminal 2 (React app):
+
+```sh
+npm start
+```
+
+Then open <http://localhost:3000>.
+
+### How it is connected
+
+- React sends requests to `POST /api/cli`.
+- `gui/cli-bridge.js` executes the `tilsam` CLI command.
+- The bridge tries `tilsam`, then `py -m tilsam.main`, then `python -m tilsam.main`.
 
 ### Notes
 
-- Cracking operations are CPU-bound and may take noticeable time for long ciphertexts and/or large iteration counts.
-- If you want more control over parameters and output formatting, prefer the CLI cracking commands.
+- Run the commands inside `gui` (not repo root), otherwise npm scripts will fail.
+- If you see `EADDRINUSE: 8787`, the bridge is already running.
 
 ---
 
@@ -228,6 +237,11 @@ for c in candidates[:5]:
 ```text
 tilsam/
 ├── pyproject.toml
+├── gui/
+│   ├── package.json
+│   ├── cli-bridge.js
+│   └── src/
+│       └── App.js
 ├── docs/
 │   └── tilsam.1.txt
 └── src/

@@ -300,6 +300,34 @@ const STYLE = `
 `;
 
 const ALPHABET = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+const LANGUAGE_MAP = { English: 'en', French: 'fr', Arabic: 'ar' };
+
+function buildSubstitutionKey(subKeyMap) {
+  return ALPHABET.map((letter) => (subKeyMap[letter] || '').toLowerCase()).join('');
+}
+
+function isSubstitutionKeyComplete(subKeyMap) {
+  return ALPHABET.every((letter) => (subKeyMap[letter] || '').trim().length === 1);
+}
+
+function parseFrequencyOutput(raw) {
+  const lines = raw.split(/\r?\n/);
+  const bars = [];
+
+  for (const line of lines) {
+    const match = line.match(/^\s*(\S+)\s+([0-9]+(?:\.[0-9]+)?)%\s*/);
+    if (!match) {
+      continue;
+    }
+
+    bars.push({
+      label: match[1],
+      percent: Number(match[2]),
+    });
+  }
+
+  return bars;
+}
 
 export default function Tilsam() {
   const CIPHERS = ['Caesar', 'Affine', 'Substitution'];
@@ -315,7 +343,10 @@ export default function Tilsam() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [freqOpen, setFreqOpen] = useState(false);
+  const [freqBars, setFreqBars] = useState([]);
   const [copyFlash, setCopyFlash] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState('Idle');
 
   const handleCopy = () => {
     if (output) {
@@ -331,6 +362,94 @@ export default function Tilsam() {
   const handleCipherChange = (c) => {
     setCipher(c);
     setOutput('');
+  };
+
+  const callCli = async (args) => {
+    const response = await fetch('/api/cli', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ args }),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok || !payload.ok) {
+      const err = payload.stderr || payload.error || 'CLI request failed.';
+      throw new Error(err.trim());
+    }
+
+    return payload.stdout || '';
+  };
+
+  const buildCipherArgs = () => {
+    const lang = LANGUAGE_MAP[language] || 'en';
+    const cipherName = cipher.toLowerCase();
+    const args = [mode.toLowerCase(), cipherName, '--lang', lang];
+
+    if (mode !== 'Crack' && !input.trim()) {
+      throw new Error('Input text is required.');
+    }
+
+    if (cipher === 'Caesar' && mode !== 'Crack') {
+      args.push('--shift', String(shift));
+    }
+
+    if (cipher === 'Affine' && mode !== 'Crack') {
+      args.push('--key-a', String(affineA), '--key-b', String(affineB));
+    }
+
+    if (cipher === 'Substitution' && mode !== 'Crack') {
+      const key = buildSubstitutionKey(subKey);
+      if (!isSubstitutionKeyComplete(subKey) || key.length !== ALPHABET.length) {
+        throw new Error('Substitution key must be filled for all letters.');
+      }
+      args.push('--key', key);
+    }
+
+    args.push(input);
+    return args;
+  };
+
+  const handleExecute = async () => {
+    setBusy(true);
+    setStatus('Running CLI...');
+
+    try {
+      const args = buildCipherArgs();
+      const stdout = await callCli(args);
+      setOutput(stdout.trimEnd());
+      setStatus('Done');
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+      setStatus('Error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!input.trim()) {
+      setOutput('Error: Input text is required.');
+      return;
+    }
+
+    setBusy(true);
+    setStatus('Analyzing...');
+
+    try {
+      const lang = LANGUAGE_MAP[language] || 'en';
+      const args = ['analyze', '--lang', lang, input];
+      const stdout = await callCli(args);
+      setOutput(stdout.trimEnd());
+      setFreqBars(parseFrequencyOutput(stdout));
+      setFreqOpen(true);
+      setStatus('Done');
+    } catch (error) {
+      setOutput(`Error: ${error.message}`);
+      setStatus('Error');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -427,7 +546,9 @@ export default function Tilsam() {
 
           {/* Execute */}
           <div className="tls-execute-wrap">
-            <button className="tls-execute-btn">Execute</button>
+            <button className="tls-execute-btn" onClick={handleExecute} disabled={busy}>
+              {busy ? 'Working...' : 'Execute'}
+            </button>
           </div>
 
           {/* Output */}
@@ -452,15 +573,15 @@ export default function Tilsam() {
                   onChange={e => setFreqOpen(e.target.checked)} />
                 <span>Frequency Analysis</span>
               </label>
-              <button className="tls-analyze-btn">Analyze</button>
+              <button className="tls-analyze-btn" onClick={handleAnalyze} disabled={busy}>Analyze</button>
             </div>
 
             {freqOpen && (
               <div className="tls-freq-chart">
-                {ALPHABET.map(l => (
-                  <div key={l} className="tls-bar-wrap">
-                    <div className="tls-bar" style={{ height: '2px' }} />
-                    <span className="tls-bar-lbl">{l}</span>
+                {(freqBars.length > 0 ? freqBars : ALPHABET.map((l) => ({ label: l, percent: 0 }))).map(item => (
+                  <div key={item.label} className="tls-bar-wrap">
+                    <div className="tls-bar" style={{ height: `${Math.max(2, Math.round(item.percent * 1.5))}px` }} />
+                    <span className="tls-bar-lbl">{item.label}</span>
                   </div>
                 ))}
               </div>
@@ -475,6 +596,8 @@ export default function Tilsam() {
           <span className="tls-status-item">{language}</span>
           <span className="tls-status-sep">|</span>
           <span className="tls-status-item">{mode}</span>
+          <span className="tls-status-sep">|</span>
+          <span className="tls-status-item">{status}</span>
           {cipher === 'Caesar' && <>
             <span className="tls-status-sep">|</span>
             <span className="tls-status-item">Shift {shift}</span>
